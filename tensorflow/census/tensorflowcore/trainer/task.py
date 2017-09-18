@@ -23,6 +23,8 @@ import json
 import os
 import threading
 
+import missinglink as ML
+
 import model
 
 import tensorflow as tf
@@ -264,7 +266,7 @@ def run(target,
       )
 
       # Returns the training graph and global step tensor
-      train_op, global_step_tensor = model.model_fn(
+      loss, train_op, global_step_tensor = model.model_fn(
           model.TRAIN,
           features.copy(),
           labels,
@@ -272,26 +274,31 @@ def run(target,
           learning_rate=learning_rate
       )
 
-    # Creates a MonitoredSession for training
-    # MonitoredSession is a Session-like object that handles
-    # initialization, recovery and hooks
-    # https://www.tensorflow.org/api_docs/python/tf/train/MonitoredTrainingSession
-    with tf.train.MonitoredTrainingSession(master=target,
-                                           is_chief=is_chief,
-                                           checkpoint_dir=job_dir,
-                                           hooks=hooks,
-                                           save_checkpoint_secs=20,
-                                           save_summaries_steps=50) as session:
-      # Global step to keep track of global number of steps particularly in
-      # distributed setting
-      step = global_step_tensor.eval(session=session)
+      project = ML.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
 
-      # Run the training graph which returns the step number as tracked by
-      # the global step tensor.
-      # When train epochs is reached, session.should_stop() will be true.
-      while (train_steps is None or
-             step < train_steps) and not session.should_stop():
-        step, _ = session.run([global_step_tensor, train_op])
+    with project.create_experiment(
+        display_name='Census') as experiment:
+
+      # Creates a MonitoredSession for training
+      # MonitoredSession is a Session-like object that handles
+      # initialization, recovery and hooks
+      # https://www.tensorflow.org/api_docs/python/tf/train/MonitoredTrainingSession
+      with tf.train.MonitoredTrainingSession(master=target,
+                                            is_chief=is_chief,
+                                            checkpoint_dir=job_dir,
+                                            hooks=hooks,
+                                            save_checkpoint_secs=20,
+                                            save_summaries_steps=50) as session:
+        # Global step to keep track of global number of steps particularly in
+        # distributed setting
+        step = global_step_tensor.eval(session=session)
+
+        # Run the training graph which returns the step number as tracked by
+        # the global step tensor.
+        # When train epochs is reached, session.should_stop() will be true.
+        for _ in experiment.loop(condition=lambda i: (train_steps is None or i < train_steps) and not session.should_stop()):
+          with experiment.train(monitored_metrics={'loss': loss}):
+            step, _ = session.run([global_step_tensor, train_op])
 
     # Find the filename of the latest saved checkpoint file
     latest_checkpoint = tf.train.latest_checkpoint(job_dir)
