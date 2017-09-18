@@ -24,12 +24,12 @@ OR
 ```python
 project = ml.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
 ```
-* Insert your owner ID and the project token (both can be found in the tutorial of the project) in the appropriate places.
+* Insert your owner ID and the project token in the appropriate places.
 * Run the model.
 
 ## Main Integration Files
 
-A list of all the files that a TensorFlowProject is created in them.
+A list of all the integrated files.
 
 * audioset
   - vggish_train_demo.py
