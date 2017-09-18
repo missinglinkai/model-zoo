@@ -31,6 +31,8 @@ from inception import image_processing
 from inception import inception_model as inception
 from inception.slim import slim
 
+import missinglink
+
 FLAGS = tf.app.flags.FLAGS
 
 tf.app.flags.DEFINE_string('train_dir', '/tmp/imagenet_train',
@@ -333,25 +335,31 @@ def train(dataset):
         FLAGS.train_dir,
         graph=sess.graph)
 
-    for step in range(FLAGS.max_steps):
-      start_time = time.time()
-      _, loss_value = sess.run([train_op, loss])
-      duration = time.time() - start_time
+    project = missinglink.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
 
-      assert not np.isnan(loss_value), 'Model diverged with loss = NaN'
+    with project.create_experiment(
+        display_name='Inception with flowers',
+        optimizer=opt) as experiment:
+      for step in experiment.loop(FLAGS.max_steps):
+        start_time = time.time()
+        with experiment.train(monitored_metrics={'loss': loss}):
+          _, loss_value = sess.run([train_op, loss])
+        duration = time.time() - start_time
 
-      if step % 10 == 0:
-        examples_per_sec = FLAGS.batch_size / float(duration)
-        format_str = ('%s: step %d, loss = %.2f (%.1f examples/sec; %.3f '
-                      'sec/batch)')
-        print(format_str % (datetime.now(), step, loss_value,
-                            examples_per_sec, duration))
+        assert not np.isnan(loss_value), 'Model diverged with loss = NaN'
 
-      if step % 100 == 0:
-        summary_str = sess.run(summary_op)
-        summary_writer.add_summary(summary_str, step)
+        if step % 10 == 0:
+          examples_per_sec = FLAGS.batch_size / float(duration)
+          format_str = ('%s: step %d, loss = %.2f (%.1f examples/sec; %.3f '
+                        'sec/batch)')
+          print(format_str % (datetime.now(), step, loss_value,
+                              examples_per_sec, duration))
 
-      # Save the model checkpoint periodically.
-      if step % 5000 == 0 or (step + 1) == FLAGS.max_steps:
-        checkpoint_path = os.path.join(FLAGS.train_dir, 'model.ckpt')
-        saver.save(sess, checkpoint_path, global_step=step)
+        if step % 100 == 0:
+          summary_str = sess.run(summary_op)
+          summary_writer.add_summary(summary_str, step)
+
+        # Save the model checkpoint periodically.
+        if step % 5000 == 0 or (step + 1) == FLAGS.max_steps:
+          checkpoint_path = os.path.join(FLAGS.train_dir, 'model.ckpt')
+          saver.save(sess, checkpoint_path, global_step=step)
