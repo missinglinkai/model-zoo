@@ -53,6 +53,8 @@ import tensorflow as tf
 import vggish_input
 import vggish_params
 import vggish_slim
+import missinglink
+project = missinglink.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
 
 flags = tf.app.flags
 slim = tf.contrib.slim
@@ -167,27 +169,37 @@ def main(_):
             epsilon=vggish_params.ADAM_EPSILON)
         optimizer.minimize(loss, global_step=global_step, name='train_op')
 
-    # Initialize all variables in the model, and then load the pre-trained
-    # VGGish checkpoint.
-    sess.run(tf.global_variables_initializer())
-    vggish_slim.load_vggish_slim_checkpoint(sess, FLAGS.checkpoint)
+    with project.create_experiment(
+        display_name='audioset vggish',
+        description='',
+        class_mapping={},
+        optimizer=optimizer,
+        hyperparams={'num_batches': FLAGS.num_batches, 'train_vggish': FLAGS.train_vggish, 'checkpoint': FLAGS.checkpoint},
+        monitored_metrics={'loss': loss},
+        custom_metrics={}) as experiment:
 
-    # Locate all the tensors and ops we need for the training loop.
-    features_tensor = sess.graph.get_tensor_by_name(
-        vggish_params.INPUT_TENSOR_NAME)
-    labels_tensor = sess.graph.get_tensor_by_name('mymodel/train/labels:0')
-    global_step_tensor = sess.graph.get_tensor_by_name(
-        'mymodel/train/global_step:0')
-    loss_tensor = sess.graph.get_tensor_by_name('mymodel/train/loss_op:0')
-    train_op = sess.graph.get_operation_by_name('mymodel/train/train_op')
+      # Initialize all variables in the model, and then load the pre-trained
+      # VGGish checkpoint.
+      sess.run(tf.global_variables_initializer())
+      # vggish_slim.load_vggish_slim_checkpoint(sess, FLAGS.checkpoint)
 
-    # The training loop.
-    for _ in range(FLAGS.num_batches):
-      (features, labels) = _get_examples_batch()
-      [num_steps, loss, _] = sess.run(
-          [global_step_tensor, loss_tensor, train_op],
-          feed_dict={features_tensor: features, labels_tensor: labels})
-      print('Step %d: loss %g' % (num_steps, loss))
+      # Locate all the tensors and ops we need for the training loop.
+      features_tensor = sess.graph.get_tensor_by_name(
+          vggish_params.INPUT_TENSOR_NAME)
+      labels_tensor = sess.graph.get_tensor_by_name('mymodel/train/labels:0')
+      global_step_tensor = sess.graph.get_tensor_by_name(
+          'mymodel/train/global_step:0')
+      loss_tensor = sess.graph.get_tensor_by_name('mymodel/train/loss_op:0')
+      train_op = sess.graph.get_operation_by_name('mymodel/train/train_op')
+
+      # The training loop.
+      for _ in experiment.loop(max_iterations=FLAGS.num_batches):
+        (features, labels) = _get_examples_batch()
+        with experiment.train():
+          [num_steps, loss, _] = sess.run(
+              [global_step_tensor, loss_tensor, train_op],
+              feed_dict={features_tensor: features, labels_tensor: labels})
+        print('Step %d: loss %g' % (num_steps, loss))
 
 if __name__ == '__main__':
   tf.app.run()
