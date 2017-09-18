@@ -47,6 +47,7 @@ NUM_EPOCHS = 10
 EVAL_BATCH_SIZE = 64
 EVAL_FREQUENCY = 100  # Number of steps between evaluations.
 
+import missinglink as ML
 
 FLAGS = None
 
@@ -279,47 +280,67 @@ def main(_):
         predictions[begin:, :] = batch_predictions[begin - size:, :]
     return predictions
 
-  # Create a local session to run the training.
-  start_time = time.time()
-  with tf.Session() as sess:
-    # Run all the initializers to prepare the trainable parameters.
-    tf.global_variables_initializer().run()
-    print('Initialized!')
-    # Loop through training steps.
-    for step in xrange(int(num_epochs * train_size) // BATCH_SIZE):
-      # Compute the offset of the current minibatch in the data.
-      # Note that we could use better randomization across epochs.
-      offset = (step * BATCH_SIZE) % (train_size - BATCH_SIZE)
-      batch_data = train_data[offset:(offset + BATCH_SIZE), ...]
-      batch_labels = train_labels[offset:(offset + BATCH_SIZE)]
-      # This dictionary maps the batch data (as a numpy array) to the
-      # node in the graph it should be fed to.
-      feed_dict = {train_data_node: batch_data,
-                   train_labels_node: batch_labels}
-      # Run the optimizer to update weights.
-      sess.run(optimizer, feed_dict=feed_dict)
-      # print some extra information once reach the evaluation frequency
-      if step % EVAL_FREQUENCY == 0:
-        # fetch some extra nodes' data
-        l, lr, predictions = sess.run([loss, learning_rate, train_prediction],
-                                      feed_dict=feed_dict)
-        elapsed_time = time.time() - start_time
-        start_time = time.time()
-        print('Step %d (epoch %.2f), %.1f ms' %
-              (step, float(step) * BATCH_SIZE / train_size,
-               1000 * elapsed_time / EVAL_FREQUENCY))
-        print('Minibatch loss: %.3f, learning rate: %.6f' % (l, lr))
-        print('Minibatch error: %.1f%%' % error_rate(predictions, batch_labels))
-        print('Validation error: %.1f%%' % error_rate(
-            eval_in_batches(validation_data, sess), validation_labels))
-        sys.stdout.flush()
-    # Finally print the result!
-    test_error = error_rate(eval_in_batches(test_data, sess), test_labels)
-    print('Test error: %.1f%%' % test_error)
-    if FLAGS.self_test:
-      print('test_error', test_error)
-      assert test_error == 0.0, 'expected 0.0 test_error, got %.2f' % (
-          test_error,)
+  project = ML.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
+
+  with project.create_experiment("mnist") as experiment:
+      # Create a local session to run the training.
+      start_time = time.time()
+
+      expected = tf.Variable(test_labels, name="expected")
+      tf.global_variables_initializer()
+
+      with tf.Session() as sess:
+        # Run all the initializers to prepare the trainable parameters.
+        tf.global_variables_initializer().run()
+        print('Initialized!')
+        # Loop through training steps.
+        for step in experiment.loop(max_iterations=int(num_epochs * train_size) // BATCH_SIZE):
+          # Compute the offset of the current minibatch in the data.
+          # Note that we could use better randomization across epochs.
+          offset = (step * BATCH_SIZE) % (train_size - BATCH_SIZE)
+          batch_data = train_data[offset:(offset + BATCH_SIZE), ...]
+          batch_labels = train_labels[offset:(offset + BATCH_SIZE)]
+          # This dictionary maps the batch data (as a numpy array) to the
+          # node in the graph it should be fed to.
+          feed_dict = {train_data_node: batch_data,
+                       train_labels_node: batch_labels}
+          # Run the optimizer to update weights.
+          sess.run(optimizer, feed_dict=feed_dict)
+          # print some extra information once reach the evaluation frequency
+          if step % EVAL_FREQUENCY == 0:
+            minibatch_error = 0.
+            # fetch some extra nodes' data
+            with experiment.train(
+                    monitored_metrics={
+                        'loss': loss,
+                        'learning rate': learning_rate
+                    },
+                    custom_metrics={'error rate': lambda: minibatch_error}):
+              l, lr, predictions = sess.run([loss, learning_rate, train_prediction],
+                                            feed_dict=feed_dict)
+              elapsed_time = time.time() - start_time
+              start_time = time.time()
+              print('Step %d (epoch %.2f), %.1f ms' %
+                  (step, float(step) * BATCH_SIZE / train_size,
+                   1000 * elapsed_time / EVAL_FREQUENCY))
+              print('Minibatch loss: %.3f, learning rate: %.6f' % (l, lr))
+              minibatch_error = error_rate(predictions, batch_labels)
+              print('Minibatch error: %.1f%%' % minibatch_error)
+
+            validation_error = 0.
+            with experiment.validation(custom_metrics={'validation error': lambda: validation_error}):
+                validation_error = error_rate(eval_in_batches(validation_data, sess), validation_labels)
+                print('Validation error: %.1f%%' % validation_error)
+            sys.stdout.flush()
+
+        # Finally print the result!
+        with experiment.test(expected=expected, predicted=eval_prediction):
+            test_error = error_rate(eval_in_batches(test_data, sess), test_labels)
+            print('Test error: %.1f%%' % test_error)
+        if FLAGS.self_test:
+          print('test_error', test_error)
+          assert test_error == 0.0, 'expected 0.0 test_error, got %.2f' % (
+              test_error,)
 
 
 if __name__ == '__main__':

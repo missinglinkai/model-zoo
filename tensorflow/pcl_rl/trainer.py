@@ -38,6 +38,8 @@ import expert_paths
 import gym_wrapper
 import env_spec
 
+import missinglink as ML
+
 app = tf.app
 flags = tf.flags
 logging = tf.logging
@@ -55,7 +57,7 @@ flags.DEFINE_integer('cutoff_agent', 0,
                      'number of steps at which to cut-off agent. '
                      'Defaults to always cutoff')
 flags.DEFINE_integer('num_steps', 100000, 'number of training steps')
-flags.DEFINE_integer('validation_frequency', 100,
+flags.DEFINE_integer('validation_frequency', 25,
                      'every so many steps, output some stats')
 
 flags.DEFINE_float('target_network_lag', 0.95,
@@ -136,7 +138,6 @@ flags.DEFINE_integer('num_replicas', 1, 'number of replicas used')
 flags.DEFINE_string('master', 'local', 'name of master')
 flags.DEFINE_string('save_dir', '', 'directory to save model to')
 flags.DEFINE_string('load_path', '', 'path of saved model to load (if none in save_dir)')
-
 
 class Trainer(object):
   """Coordinates single or multi-replica training."""
@@ -344,7 +345,7 @@ class Trainer(object):
   def do_before_step(self, step):
     pass
 
-  def run(self):
+  def run(self, experiment):
     """Run training."""
     is_chief = FLAGS.task_id == 0 or not FLAGS.supervisor
     sv = None
@@ -404,7 +405,7 @@ class Trainer(object):
     losses = []
     rewards = []
     all_ep_rewards = []
-    for step in xrange(1 + self.num_steps):
+    for step in experiment.loop(max_iterations=1 + self.num_steps):
 
       if sv is not None and sv.ShouldStop():
         logging.info('stopping supervisor')
@@ -413,7 +414,7 @@ class Trainer(object):
       self.do_before_step(step)
 
       (loss, summary,
-       total_rewards, episode_rewards) = self.controller.train(sess)
+       total_rewards, episode_rewards) = self.controller.train(sess, experiment)
       losses.append(loss)
       rewards.append(total_rewards)
       all_ep_rewards.extend(episode_rewards)
@@ -423,12 +424,22 @@ class Trainer(object):
 
       model_step = sess.run(self.model.global_step)
       if is_chief and step % self.validation_frequency == 0:
+        mean_losses = mean_rewards = mean_all_ep_rewards = 0
+        with experiment.validation(custom_metrics={
+            'avg loss': lambda: mean_losses,
+            'avg reward': lambda: mean_rewards,
+            'avg all ep rewards': lambda: mean_all_ep_rewards
+        }):
+            mean_losses = np.mean(losses)
+            mean_rewards = np.mean(rewards)
+            mean_all_ep_rewards = np.mean(all_ep_rewards)
+
         logging.info('at training step %d, model step %d: '
                      'avg loss %f, avg reward %f, '
                      'episode rewards: %f',
                      step, model_step,
-                     np.mean(losses), np.mean(rewards),
-                     np.mean(all_ep_rewards))
+                     mean_losses, mean_rewards,
+                     mean_all_ep_rewards)
 
         losses = []
         rewards = []
@@ -446,7 +457,11 @@ class Trainer(object):
 def main(unused_argv):
   logging.set_verbosity(logging.INFO)
   trainer = Trainer()
-  trainer.run()
+
+  project = ML.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
+
+  with project.create_experiment("PCL RL") as experiment:
+    trainer.run(experiment)
 
 
 if __name__ == '__main__':
