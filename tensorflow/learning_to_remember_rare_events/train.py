@@ -27,6 +27,7 @@ import random
 
 import numpy as np
 import tensorflow as tf
+import missinglink as ml
 
 import data_utils
 import model
@@ -42,7 +43,7 @@ tf.flags.DEFINE_integer('memory_size', None, 'number of slots in memory. '
                         'Leave as None to default to episode length')
 tf.flags.DEFINE_integer('batch_size', 16, 'batch size')
 tf.flags.DEFINE_integer('num_episodes', 100000, 'number of training episodes')
-tf.flags.DEFINE_integer('validation_frequency', 20,
+tf.flags.DEFINE_integer('validation_frequency', 2,
                         'every so many training episodes, '
                         'assess validation accuracy')
 tf.flags.DEFINE_integer('validation_length', 10,
@@ -133,7 +134,7 @@ class Trainer(object):
   def individual_compute_correct(self, y, y_pred):
     return y_pred == y
 
-  def run(self):
+  def run(self, experiment):
     """Performs training.
 
     Trains a model using episodic training.
@@ -182,28 +183,28 @@ class Trainer(object):
     losses = []
     random.seed(FLAGS.seed)
     np.random.seed(FLAGS.seed)
-    for i in xrange(FLAGS.num_episodes):
-      x, y = self.sample_episode_batch(
-          train_data, episode_length, episode_width, batch_size)
-      outputs = self.model.episode_step(sess, x, y, clear_memory=True)
+    for i in experiment.loop(FLAGS.num_episodes):
+      x, y = self.sample_episode_batch(train_data, episode_length, episode_width, batch_size)
+      outputs = self.model.episode_step(experiment, sess, x, y, clear_memory=True)
       loss = outputs
       losses.append(loss)
 
       if i % FLAGS.validation_frequency == 0:
-        logging.info('episode batch %d, avg train loss %f',
-                     i, np.mean(losses))
+        logging.info('episode batch %d, avg train loss %f', i, np.mean(losses))
         losses = []
 
         # validation
         correct = []
         correct_by_shot = dict((k, []) for k in xrange(self.episode_width + 1))
         for _ in xrange(FLAGS.validation_length):
-          x, y = self.sample_episode_batch(
-              valid_data, episode_length, episode_width, 1)
-          outputs = self.model.episode_predict(
-              sess, x, y, clear_memory=True)
+          x, y = self.sample_episode_batch(valid_data, episode_length, episode_width, 1)
+          # next 2 lines is a hack.
+          outputs = 0
+          correct_fn = lambda: self.compute_correct(np.array(y), outputs)
+          with experiment.validation(custom_metrics={"correct": correct_fn}):
+            outputs = self.model.episode_predict(sess, x, y, clear_memory=True)
           y_preds = outputs
-          correct.append(self.compute_correct(np.array(y), y_preds))
+          correct.append(correct_fn())
 
           # compute per-shot accuracies
           seen_counts = [[0] * episode_width for _ in xrange(batch_size)]
@@ -233,7 +234,9 @@ class Trainer(object):
 def main(unused_argv):
   train_data, valid_data = data_utils.get_data()
   trainer = Trainer(train_data, valid_data, data_utils.IMAGE_NEW_SIZE ** 2)
-  trainer.run()
+  project = ml.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
+  with project.create_experiment(display_name="Learning to remeber") as experiment:
+    trainer.run(experiment)
 
 
 if __name__ == '__main__':
