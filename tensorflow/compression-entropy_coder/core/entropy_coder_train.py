@@ -23,9 +23,11 @@ import code_loader
 import config_helper
 
 # pylint: disable=unused-import
-from entropy_coder.all_models import all_models
+from all_models import all_models
 # pylint: enable=unused-import
-from entropy_coder.model import model_factory
+from model import model_factory
+
+import missinglink as ML
 
 
 FLAGS = tf.app.flags.FLAGS
@@ -86,94 +88,98 @@ def train():
       first_code.features.feature['code_shape'].int64_list.value[2])
   print('Maximum code depth: {}'.format(max_bit_depth))
 
-  with tf.Graph().as_default():
-    ps_ops = ["Variable", "VariableV2", "AutoReloadVariable", "VarHandleOp"]
-    with tf.device(tf.train.replica_device_setter(FLAGS.ps_tasks,
-                                                  ps_ops=ps_ops)):
-      codes = code_loader.LoadBinaryCode(
-          input_config=input_config,
-          batch_size=batch_size)
-      if input_config.unique_code_size:
-        print('Input code size: {} x {}'.format(first_code_height,
-                                                first_code_width))
-        codes.set_shape(
-            [batch_size, first_code_height, first_code_width, max_bit_depth])
-      else:
-        codes.set_shape([batch_size, None, None, max_bit_depth])
-      codes_effective_shape = tf.shape(codes)
+  project = ML.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
 
-      global_step = tf.contrib.framework.create_global_step()
+  with project.create_experiment("Entropy Coder") as experiment:
+      with tf.Graph().as_default():
+        ps_ops = ["Variable", "VariableV2", "AutoReloadVariable", "VarHandleOp"]
+        with tf.device(tf.train.replica_device_setter(FLAGS.ps_tasks,
+                                                      ps_ops=ps_ops)):
+          codes = code_loader.LoadBinaryCode(
+              input_config=input_config,
+              batch_size=batch_size)
+          if input_config.unique_code_size:
+            print('Input code size: {} x {}'.format(first_code_height,
+                                                    first_code_width))
+            codes.set_shape(
+                [batch_size, first_code_height, first_code_width, max_bit_depth])
+          else:
+            codes.set_shape([batch_size, None, None, max_bit_depth])
+          codes_effective_shape = tf.shape(codes)
 
-      # Apply learning-rate decay.
-      learning_rate = tf.train.exponential_decay(
-          learning_rate=initial_learning_rate,
-          global_step=global_step,
-          decay_steps=decay_steps,
-          decay_rate=decay_rate,
-          staircase=True)
-      tf.summary.scalar('Learning Rate', learning_rate)
-      optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate,
-                                         epsilon=1.0)
+          global_step = tf.contrib.framework.create_global_step()
 
-      # Create the entropy coder model.
-      model = model_factory.GetModelRegistry().CreateModel(FLAGS.model)
-      model_config_string = config_helper.GetConfigString(FLAGS.model_config)
-      model.Initialize(global_step, optimizer, model_config_string)
-      model.BuildGraph(codes)
+          # Apply learning-rate decay.
+          learning_rate = tf.train.exponential_decay(
+              learning_rate=initial_learning_rate,
+              global_step=global_step,
+              decay_steps=decay_steps,
+              decay_rate=decay_rate,
+              staircase=True)
+          tf.summary.scalar('Learning Rate', learning_rate)
+          optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate,
+                                             epsilon=1.0)
 
-      summary_op = tf.summary.merge_all()
+          # Create the entropy coder model.
+          model = model_factory.GetModelRegistry().CreateModel(FLAGS.model)
+          model_config_string = config_helper.GetConfigString(FLAGS.model_config)
+          model.Initialize(global_step, optimizer, model_config_string)
+          model.BuildGraph(codes)
 
-      # Verify that the model can actually be trained.
-      if model.train_op is None:
-        raise ValueError('Input model {} is not trainable'.format(FLAGS.model))
+          summary_op = tf.summary.merge_all()
 
-      # We disable the summary thread run by Supervisor class by passing
-      # summary_op=None. We still pass save_summaries_secs because it is used by
-      # the global step counter thread.
-      is_chief = (FLAGS.task == 0)
-      sv = tf.train.Supervisor(logdir=FLAGS.train_dir,
-                               is_chief=is_chief,
-                               global_step=global_step,
-                               # saver=model.saver,
-                               summary_op=None,
-                               save_summaries_secs=120,
-                               save_model_secs=600,
-                               recovery_wait_secs=30)
+          # Verify that the model can actually be trained.
+          if model.train_op is None:
+            raise ValueError('Input model {} is not trainable'.format(FLAGS.model))
 
-      sess = sv.PrepareSession(FLAGS.master)
-      sv.StartQueueRunners(sess)
+          # We disable the summary thread run by Supervisor class by passing
+          # summary_op=None. We still pass save_summaries_secs because it is used by
+          # the global step counter thread.
+          is_chief = (FLAGS.task == 0)
+          sv = tf.train.Supervisor(logdir=FLAGS.train_dir,
+                                   is_chief=is_chief,
+                                   global_step=global_step,
+                                   # saver=model.saver,
+                                   summary_op=None,
+                                   save_summaries_secs=120,
+                                   save_model_secs=600,
+                                   recovery_wait_secs=30)
 
-      step = sess.run(global_step)
-      print('Trainer initial step: {}.'.format(step))
+          sess = sv.PrepareSession(FLAGS.master)
+          sv.StartQueueRunners(sess)
 
-      # Once everything has been setup properly, save the configs.
-      if is_chief:
-        config_helper.SaveConfig(FLAGS.train_dir, 'input_config.json',
-                                 input_config_string)
-        config_helper.SaveConfig(FLAGS.train_dir, 'model_config.json',
-                                 model_config_string)
-        config_helper.SaveConfig(FLAGS.train_dir, 'train_config.json',
-                                 train_config_string)
+          step = sess.run(global_step)
+          print('Trainer initial step: {}.'.format(step))
 
-      # Train the model.
-      next_summary_time = time.time()
-      while not sv.ShouldStop():
-        feed_dict = None
+          # Once everything has been setup properly, save the configs.
+          if is_chief:
+            config_helper.SaveConfig(FLAGS.train_dir, 'input_config.json',
+                                     input_config_string)
+            config_helper.SaveConfig(FLAGS.train_dir, 'model_config.json',
+                                     model_config_string)
+            config_helper.SaveConfig(FLAGS.train_dir, 'train_config.json',
+                                     train_config_string)
 
-        # Once in a while, update the summaries on the chief worker.
-        if is_chief and next_summary_time < time.time():
-          summary_str = sess.run(summary_op, feed_dict=feed_dict)
-          sv.SummaryComputed(sess, summary_str)
-          next_summary_time = time.time() + sv.save_summaries_secs
-        else:
-          tf_tensors = {
-              'train': model.train_op,
-              'code_length': model.average_code_length
-          }
-          np_tensors = sess.run(tf_tensors, feed_dict=feed_dict)
-          print np_tensors['code_length']
+          # Train the model.
+          next_summary_time = time.time()
+          for step in experiment.loop(condition=lambda _: not sv.ShouldStop()):
+            feed_dict = None
 
-      sv.Stop()
+            # Once in a while, update the summaries on the chief worker.
+            if is_chief and next_summary_time < time.time():
+              summary_str = sess.run(summary_op, feed_dict=feed_dict)
+              sv.SummaryComputed(sess, summary_str)
+              next_summary_time = time.time() + sv.save_summaries_secs
+            else:
+              tf_tensors = {
+                  'train': model.train_op,
+                  'code_length': model.average_code_length
+              }
+              with experiment.train(monitored_metrics={'avg code length': model.average_code_length}):
+                np_tensors = sess.run(tf_tensors, feed_dict=feed_dict)
+              print np_tensors['code_length']
+
+          sv.Stop()
 
 
 def main(argv=None):  # pylint: disable=unused-argument
