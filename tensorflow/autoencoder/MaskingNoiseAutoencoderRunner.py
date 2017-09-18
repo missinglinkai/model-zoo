@@ -6,6 +6,10 @@ from tensorflow.examples.tutorials.mnist import input_data
 
 from autoencoder_models.DenoisingAutoencoder import MaskingNoiseAutoencoder
 
+import missinglink as ML
+
+FLAGS = tf.flags.FLAGS
+
 mnist = input_data.read_data_sets('MNIST_data', one_hot = True)
 
 def standard_scale(X_train, X_test):
@@ -32,17 +36,29 @@ autoencoder = MaskingNoiseAutoencoder(n_input = 784,
                                       optimizer = tf.train.AdamOptimizer(learning_rate = 0.001),
                                       dropout_probability = 0.95)
 
-for epoch in range(training_epochs):
-    avg_cost = 0.
-    total_batch = int(n_samples / batch_size)
-    for i in range(total_batch):
-        batch_xs = get_random_block_from_data(X_train, batch_size)
+project = ML.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
 
-        cost = autoencoder.partial_fit(batch_xs)
+avg_cost = 0.
+with project.create_experiment(
+    "Autoencoder",
+    custom_metrics={'avg cost': lambda: avg_cost},
+    monitored_metrics={'cost': autoencoder.cost}
+) as experiment:
+    for epoch in experiment.epoch_loop(training_epochs):
+        avg_cost = 0.
+        total_batch = int(n_samples / batch_size)
+        # Loop over all batches
+        for i in experiment.batch_loop(total_batch):
+            batch_xs = get_random_block_from_data(X_train, batch_size)
 
-        avg_cost += cost / n_samples * batch_size
+            # Fit training using batch data
+            with experiment.train():
+                cost = autoencoder.partial_fit(batch_xs)
+                # Compute average loss
+                avg_cost += cost / n_samples * batch_size
 
-    if epoch % display_step == 0:
-        print("Epoch:", '%04d' % (epoch + 1), "cost=", "{:.9f}".format(avg_cost))
+        # Display logs per epoch step
+        if epoch % display_step == 0:
+            print("Epoch:", '%04d' % (epoch + 1), "cost=", "{:.9f}".format(avg_cost))
 
 print("Total cost: " + str(autoencoder.calc_total_cost(X_test)))
