@@ -24,6 +24,8 @@ import tensorflow as tf
 import re
 import utils
 
+import missinglink as ML
+
 # Lots of hyperparameters, but most are pretty insensitive.  The
 # explanation of these hyperparameters is found below, in the flags
 # session.
@@ -573,12 +575,15 @@ def train(hps, datasets):
     datasets: A dictionary of data dictionaries.  The dataset dict is simply a
       name(string)-> data dictionary mapping (See top of lfads.py).
   """
-  model = build_model(hps, kind="train", datasets=datasets)
-  if hps.do_reset_learning_rate:
-    sess = tf.get_default_session()
-    sess.run(model.learning_rate.initializer)
+  project = ML.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
 
-  model.train_model(datasets)
+  with project.create_experiment("LFADS") as experiment:
+      model = build_model(hps, kind="train", datasets=datasets)
+      if hps.do_reset_learning_rate:
+        sess = tf.get_default_session()
+        sess.run(model.learning_rate.initializer)
+
+      model.train_model(datasets, experiment)
 
 
 def write_model_runs(hps, datasets, output_fname=None):
