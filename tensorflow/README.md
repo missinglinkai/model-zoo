@@ -1,6 +1,6 @@
-# MissingLink.ai TensorFlow Model Zoo
+# MissingLink.AI TensorFlow Model Zoo
 
-In this folder you can find TensorFlow models integrated with the MissingLink.ai SDK.
+In this folder you can find TensorFlow models integrated with the MissingLink.AI SDK.
 The models are taken from the [TensorFlow model zoo](https://github.com/tensorflow/models) and from the [Google Cloud Platform cloudml-samples](https://github.com/GoogleCloudPlatform/cloudml-samples).
 Every model comes with:
 * An original `README` file, that contains explanation about the model, installation instructions and usage instructions;
