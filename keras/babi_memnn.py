@@ -28,8 +28,8 @@ import re
 import missinglink
 
 missinglink_callback = missinglink.KerasCallback(
-    owner_id="485aee1a-7f13-0dab-c470-0be21d273407",
-    project_token="AojfcjXvLGftJDdc"
+    owner_id="your-owner-id",
+    project_token="your-project-token"
 )
 missinglink_callback.set_properties("bAbI-MemNN")
 

@@ -55,6 +55,7 @@ from keras.layers import Input, BatchNormalization, ELU
 import matplotlib.pyplot as plt
 import keras.backend as K
 from keras import layers
+import missinglink
 
 
 def convresblock(x, nfeats=8, ksize=3, nskipped=2, elu=True):
@@ -152,14 +153,13 @@ elif pool_size == 3:
     nlayers = 3
 else:
     import sys
-
-import missinglink
+    sys.exit('Script supports pool_size of 2 and 3.')
 
 missinglink_callback = missinglink.KerasCallback(
     owner_id="485aee1a-7f13-0dab-c470-0be21d273407",
     project_token="AojfcjXvLGftJDdc"
 )
-missinglink_callback.set_properties("mnist_swwae")    sys.exit('Script supports pool_size of 2 and 3.')
+missinglink_callback.set_properties("mnist_swwae")
 
 # Shape of input to train on (note that model is fully convolutional however)
 input_shape = x_train.shape[1:]

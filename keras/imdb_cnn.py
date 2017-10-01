@@ -14,6 +14,13 @@ from keras.layers import Dense, Dropout, Activation
 from keras.layers import Embedding
 from keras.layers import Conv1D, GlobalMaxPooling1D
 from keras.datasets import imdb
+import missinglink
+
+missinglink_callback = missinglink.KerasCallback(
+    owner_id="your-owner-id",
+    project_token="your-project-token"
+)
+missinglink_callback.set_properties("IMDB CNN")
 
 # set parameters:
 max_features = 5000
@@ -71,4 +78,5 @@ model.compile(loss='binary_crossentropy',
 model.fit(x_train, y_train,
           batch_size=batch_size,
           epochs=epochs,
-          validation_data=(x_test, y_test))
+          validation_data=(x_test, y_test),
+          callbacks=[missinglink_callback])
