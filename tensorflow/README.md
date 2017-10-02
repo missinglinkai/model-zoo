@@ -31,24 +31,24 @@ project = ml.TensorFlowProject(owner_id="your-owner-id", project_token="your-pro
 
 A list of all the integrated files.
 
-* audioset
+* [audioset](https://github.com/missinglinkai/model-zoo/tree/master/tensorflow/audioset)
   - vggish_train_demo.py
-* autoencoder
+* [autoencoder](https://github.com/missinglinkai/model-zoo/tree/master/tensorflow/autoencoder)
   - AdditiveGaussianNoiseAutoencoderRunner.py
   - MaskingNoiseAutoencoderRunner.py
   - AutoencoderRunner.py
   - VariationalAutoencoderRunner.py
-* census
+* [census](https://github.com/missinglinkai/model-zoo/tree/master/tensorflow/census)
   - tensorflowcore/trainer/task.py
-* compression-entropy_coder
+* [compression-entropy_coder](https://github.com/missinglinkai/model-zoo/tree/master/tensorflow/compression-entropy_coder)
   - core/entropy_coder_train.py
-* inception
+* [inception](https://github.com/missinglinkai/model-zoo/tree/master/tensorflow/inception)
   - inception/inception_train.py
-* learning_to_remember_rare_events
+* [learning_to_remember_rare_events](https://github.com/missinglinkai/model-zoo/tree/master/tensorflow/learning_to_remember_rare_events)
   - train.py
-* lfads
+* [lfads](https://github.com/missinglinkai/model-zoo/tree/master/tensorflow/lfads)
   - run_lfads.py
-* mnist
+* [mnist](https://github.com/missinglinkai/model-zoo/tree/master/tensorflow/mnist)
   - convolutional.py
-* pcl_rl
+* [pcl_rl](https://github.com/missinglinkai/model-zoo/tree/master/tensorflow/pcl_rl)
   - trainer.py
