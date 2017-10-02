@@ -1,4 +1,30 @@
-# Keras examples directory
+# MissingLink.AI Keras Model Zoo
+
+In this folder you can find Keras models integrated with the MissingLink.AI SDK. The models are taken from the [Keras examples directory](https://github.com/fchollet/keras/tree/master/examples). This folder includes:
+* The integrated models
+* This `README` file
+* A `requierments.txt` file
+
+## Usage
+
+* Clone the repository.
+* Install the requirements to run the models:
+```
+# from the 'keras' directory:
+pip install -r requirements.txt
+```
+* Choose the model you want to run.
+* Find the following lines in the model's file:
+```python
+missinglink_callback = missinglink.KerasCallback(
+    owner_id="your-owner-id",
+    project_token="your-project-token"
+)
+```
+* Insert your owner ID and your project token in the appropriate places.
+* Run the model.
+
+## Models
 
 [addition_rnn.py](addition_rnn.py)
 Implementation of sequence to sequence learning for performing addition of two numbers (as strings).
