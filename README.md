@@ -5,4 +5,4 @@ Contains examples of models integrated with the MissingLink.AI SDK.
 
 * [TensorFlow](https://github.com/missinglinkai/model-zoo/tree/master/tensorflow)
 * [Keras](https://github.com/missinglinkai/model-zoo/tree/master/keras)
-* pyCaffe (coming up!)
+* [pyCaffe](https://github.com/missinglinkai/model-zoo/tree/master/pycaffe)
