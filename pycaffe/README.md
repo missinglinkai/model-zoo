@@ -5,7 +5,7 @@ In this folder you can find pyCaffe models integrated with the MissingLink.AI SD
 
 * [Age Gender Deep Learning](https://github.com/GilLevi/AgeGenderDeepLearning)
 * [Data Augumentation Testing](https://github.com/gombru/dataAugmentationTesting)
-* [Network In Network](https://gist.github.com/mavenlin/e56253735ef32c3c296d)
+* [Network In Network](https://gist.github.com/mavenlin/e56253735ef32c3c296d)(Coming Soon!)
 * Caffe Net On Flickr Style: [source](https://github.com/BVLC/caffe/tree/master/models/finetune_flickr_style), [instructions](https://github.com/BVLC/caffe/tree/master/examples/finetune_flickr_style)
 
 ## Usage
@@ -33,5 +33,5 @@ missinglink_callback = missinglink.PyCaffeCallback(
   * caffe-net-flickr-style/train.py
 * [Data Augmentation Testing](https://github.com/missinglinkai/model-zoo/blob/feature/pycaffe/pycaffe/data-augmentation-testing/train.py)
   * data-augmentation-testing/train.py
-* [Network In Network](https://github.com/missinglinkai/model-zoo/blob/feature/pycaffe/pycaffe/network-in-network/train.py)
+* [Network In Network](https://github.com/missinglinkai/model-zoo/blob/feature/pycaffe/pycaffe/network-in-network/train.py)(Coming Soon!)
   * network-in-network/train.py
