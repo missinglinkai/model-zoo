@@ -8,8 +8,8 @@ import missinglink
 caffe.set_mode_cpu()
 
 missinglink_callback = missinglink.PyCaffeCallback(
-    owner_id="485aee1a-7f13-0dab-c470-0be21d273407",
-    project_token="KuqiSOcHQkzhavxl"
+    owner_id="OWNER_ID",
+    project_token="PROJECT_TOKEN"
 )
 missinglink_callback.set_properties(display_name="Data Augmentation Testing")
 
