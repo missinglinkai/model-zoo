@@ -19,4 +19,6 @@ solver = missinglink_callback.create_wrapped_solver(caffe.SGDSolver, 'models/fin
 
 missinglink_callback.set_expected_predictions_layers("label", "fc8_flickr")
 
+missinglink_callback.set_monitored_blobs(["loss", "accuracy"])
+
 solver.solve()
