@@ -4,9 +4,12 @@ In this folder you can find pyCaffe models integrated with the MissingLink.AI SD
 ## Sources
 
 * [Age Gender Deep Learning](https://github.com/GilLevi/AgeGenderDeepLearning)
-* [Data Augumentation Testing](https://github.com/gombru/dataAugmentationTesting)
-* [Network In Network](https://gist.github.com/mavenlin/e56253735ef32c3c296d)(Coming Soon!)
 * Caffe Net On Flickr Style: [source](https://github.com/BVLC/caffe/tree/master/models/finetune_flickr_style), [instructions](https://github.com/BVLC/caffe/tree/master/examples/finetune_flickr_style)
+* [Data Augumentation Testing](https://github.com/gombru/dataAugmentationTesting)
+* [Network In Network](https://gist.github.com/mavenlin/e56253735ef32c3c296d) (Coming Soon!)
+* [The All-Convolutional Net](https://github.com/mateuszbuda/ALL-CNN) (Coming Soon!)
+* [Translating Video to Natural Language](https://gist.github.com/vsubhashini/3761b9ad43f60db9ac3d)
+* [Yearbook Photo](https://gist.github.com/katerakelly/842f948d568d7f1f0044)
 
 ## Usage
 
@@ -33,5 +36,7 @@ missinglink_callback = missinglink.PyCaffeCallback(
   * caffe-net-flickr-style/train.py
 * [Data Augmentation Testing](https://github.com/missinglinkai/model-zoo/blob/feature/pycaffe/pycaffe/data-augmentation-testing/train.py)
   * data-augmentation-testing/train.py
-* [Network In Network](https://github.com/missinglinkai/model-zoo/blob/feature/pycaffe/pycaffe/network-in-network/train.py)(Coming Soon!)
-  * network-in-network/train.py
+* [Translating Video to Natural Language](https://github.com/missinglinkai/model-zoo/tree/feature/pycaffe/pycaffe/translating-video-to-natural-language):
+  * [translating-video-to-natural-language/solve.py](https://github.com/missinglinkai/model-zoo/blob/feature/pycaffe/pycaffe/translating-video-to-natural-language/solve.py)
+* [Yearbook Photo](https://github.com/missinglinkai/model-zoo/tree/feature/pycaffe/pycaffe/yearbook-photo):
+  * [yearbook-photo/solve.py](https://github.com/missinglinkai/model-zoo/blob/feature/pycaffe/pycaffe/yearbook-photo/solve.py)
