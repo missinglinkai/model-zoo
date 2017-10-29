@@ -37,6 +37,6 @@ missinglink_callback = missinglink.PyCaffeCallback(
 * [Data Augmentation Testing](https://github.com/missinglinkai/model-zoo/blob/feature/pycaffe/pycaffe/data-augmentation-testing/train.py)
   * data-augmentation-testing/train.py
 * [Translating Video to Natural Language](https://github.com/missinglinkai/model-zoo/tree/feature/pycaffe/pycaffe/translating-video-to-natural-language):
-  * [translating-video-to-natural-language/solve.py](https://github.com/missinglinkai/model-zoo/blob/feature/pycaffe/pycaffe/translating-video-to-natural-language/solve.py)
+  * translating-video-to-natural-language/solve.py
 * [Yearbook Photo](https://github.com/missinglinkai/model-zoo/tree/feature/pycaffe/pycaffe/yearbook-photo):
-  * [yearbook-photo/solve.py](https://github.com/missinglinkai/model-zoo/blob/feature/pycaffe/pycaffe/yearbook-photo/solve.py)
+  * yearbook-photo/solve.py
