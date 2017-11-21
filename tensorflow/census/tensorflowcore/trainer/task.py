@@ -23,7 +23,7 @@ import json
 import os
 import threading
 
-import missinglink as ML
+import missinglink as ml
 
 import model
 
@@ -274,7 +274,7 @@ def run(target,
           learning_rate=learning_rate
       )
 
-      project = ML.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
+      project = ml.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
 
     with project.create_experiment(
         display_name='Census') as experiment:

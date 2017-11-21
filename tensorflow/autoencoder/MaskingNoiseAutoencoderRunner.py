@@ -6,7 +6,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 
 from autoencoder_models.DenoisingAutoencoder import MaskingNoiseAutoencoder
 
-import missinglink as ML
+import missinglink as ml
 
 FLAGS = tf.flags.FLAGS
 
@@ -36,7 +36,7 @@ autoencoder = MaskingNoiseAutoencoder(n_input = 784,
                                       optimizer = tf.train.AdamOptimizer(learning_rate = 0.001),
                                       dropout_probability = 0.95)
 
-project = ML.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
+project = ml.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
 
 avg_cost = 0.
 with project.create_experiment(

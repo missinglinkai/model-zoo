@@ -27,7 +27,7 @@ from all_models import all_models
 # pylint: enable=unused-import
 from model import model_factory
 
-import missinglink as ML
+import missinglink as ml
 
 
 FLAGS = tf.app.flags.FLAGS
@@ -88,7 +88,7 @@ def train():
       first_code.features.feature['code_shape'].int64_list.value[2])
   print('Maximum code depth: {}'.format(max_bit_depth))
 
-  project = ML.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
+  project = ml.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
 
   with project.create_experiment("Entropy Coder") as experiment:
       with tf.Graph().as_default():
