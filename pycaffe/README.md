@@ -25,6 +25,7 @@ The models are taken from the following sources:
 
 * Clone the repository.
 * Choose the model you want to run.
+* Log in to the MissingLink.AI website and create a new project.
 * Find the following lines in the integrated file:
 ```python
 missinglink_callback = missinglink.PyCaffeCallback(
