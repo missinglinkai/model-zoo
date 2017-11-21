@@ -1,5 +1,7 @@
 # MissingLink.AI pyCaffe Model Zoo
-In this folder you can find pyCaffe models integrated with the MissingLink.AI SDK. The models are taken from the following sources:
+In this folder you can find pyCaffe models integrated with the MissingLink.AI SDK. 
+
+The models are taken from the following sources:
 
 ## Sources
 
@@ -32,7 +34,11 @@ missinglink_callback = missinglink.PyCaffeCallback(
 ```
 * Insert your owner ID and your project token in the appropriate places.
 * You will probably need to provide training and testing data, and to insert the path to the data in the net's defenition `.prototxt` file.
-* Run the model.
+* Run the model:
+```
+# from the 'model-zoo/pyCaffe/<model-name>' directory
+python <train OR solve>.py
+```
 
 **Note:** Some models include a `README` with more instructions required to run them.
 
