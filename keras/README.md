@@ -15,6 +15,7 @@ This folder includes:
 pip install -r requirements.txt
 ```
 * Choose the model you want to run.
+* Log in to the MissingLink.AI website and create a new project.
 * Find the following lines in the model's file:
 ```python
 missinglink_callback = missinglink.KerasCallback(
