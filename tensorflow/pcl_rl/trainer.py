@@ -38,7 +38,7 @@ import expert_paths
 import gym_wrapper
 import env_spec
 
-import missinglink as ML
+import missinglink as ml
 
 app = tf.app
 flags = tf.flags
@@ -458,7 +458,7 @@ def main(unused_argv):
   logging.set_verbosity(logging.INFO)
   trainer = Trainer()
 
-  project = ML.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
+  project = ml.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
 
   with project.create_experiment("PCL RL") as experiment:
     trainer.run(experiment)

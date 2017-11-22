@@ -6,7 +6,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 
 from autoencoder_models.Autoencoder import Autoencoder
 
-import missinglink as ML
+import missinglink as ml
 
 FLAGS = tf.flags.FLAGS
 
@@ -34,7 +34,7 @@ autoencoder = Autoencoder(n_input = 784,
                           transfer_function = tf.nn.softplus,
                           optimizer = tf.train.AdamOptimizer(learning_rate = 0.001))
 
-project = ML.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
+project = ml.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
 
 avg_cost = 0.
 with project.create_experiment(
