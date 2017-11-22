@@ -21,6 +21,10 @@ missinglink_callback = missinglink.KerasCallback(
     project_token="your-project-token"
 )
 ```
+* Find your owner ID and project token:
+
+![missinglink](https://user-images.githubusercontent.com/30972111/33119952-44d0313c-cf79-11e7-8be3-091eca2e9e57.png)
+![missinglink](https://user-images.githubusercontent.com/30972111/33120206-01428874-cf7a-11e7-8441-3e7b1f860845.png)
 * Insert your owner ID and your project token in the appropriate places.
 * Run the model.
 
