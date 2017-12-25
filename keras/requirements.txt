@@ -6,7 +6,6 @@ Pillow
 matplotlib
 missinglink-sdk
 cairocffi
-cairocffi
 editdistance
 sklearn
 Theano
