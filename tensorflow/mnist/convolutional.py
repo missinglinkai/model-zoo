@@ -47,7 +47,7 @@ NUM_EPOCHS = 10
 EVAL_BATCH_SIZE = 64
 EVAL_FREQUENCY = 100  # Number of steps between evaluations.
 
-import missinglink as ML
+import missinglink as ml
 
 FLAGS = None
 
@@ -280,7 +280,7 @@ def main(_):
         predictions[begin:, :] = batch_predictions[begin - size:, :]
     return predictions
 
-  project = ML.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
+  project = ml.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
 
   with project.create_experiment("mnist") as experiment:
       # Create a local session to run the training.

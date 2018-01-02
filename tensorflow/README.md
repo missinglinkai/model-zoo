@@ -2,6 +2,7 @@
 
 In this folder you can find TensorFlow models integrated with the MissingLink.AI SDK.
 The models are taken from the [TensorFlow model zoo](https://github.com/tensorflow/models) and from the [Google Cloud Platform cloudml-samples](https://github.com/GoogleCloudPlatform/cloudml-samples).
+
 Every model comes with:
 * An original `README` file, that contains explanation about the model, installation instructions and usage instructions;
 * A `requirements.txt` file, that can be used with pip to install the required packages to run the model (see usage section for details).
@@ -12,20 +13,24 @@ Every model comes with:
 * Choose the model you want to run.
 * Install the required packages to run the model:
 ```
-# from the model's directory
+# from the 'model-zoo/tensorflow/<model-name>' directory
 pip install -r requirements.txt
 ```
-* Log in to the MissingLink.ai website and create a new project.
-* In the file of the integrates model, find the following line:
-```python
-project = ML.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
-```
-OR
+* Log in to the MissingLink.AI website and create a new project.
+* In the file of the integrated model, find the following line:
 ```python
 project = ml.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
 ```
+* Find your owner ID and project token:
+
+![missinglink](https://user-images.githubusercontent.com/30972111/33119952-44d0313c-cf79-11e7-8be3-091eca2e9e57.png)
+![missinglink](https://user-images.githubusercontent.com/30972111/33120206-01428874-cf7a-11e7-8441-3e7b1f860845.png)
 * Insert your owner ID and the project token in the appropriate places.
-* Run the model.
+* Run the model:
+```
+# from the 'model-zoo/tensorflow/<model-name>' directory
+python <model's-file>.py
+```
 
 ## Main Integration Files
 

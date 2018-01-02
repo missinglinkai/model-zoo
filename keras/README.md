@@ -1,6 +1,7 @@
 # MissingLink.AI Keras Model Zoo
 
-In this folder you can find Keras models integrated with the MissingLink.AI SDK. The models are taken from the [Keras examples directory](https://github.com/fchollet/keras/tree/master/examples). This folder includes:
+In this folder you can find Keras models integrated with the MissingLink.AI SDK. The models are taken from the [Keras examples directory](https://github.com/fchollet/keras/tree/master/examples).
+This folder includes:
 * The integrated models
 * This `README` file
 * A `requierments.txt` file
@@ -10,10 +11,11 @@ In this folder you can find Keras models integrated with the MissingLink.AI SDK.
 * Clone the repository.
 * Install the requirements to run the models:
 ```
-# from the 'keras' directory:
+# from the 'model-zoo/keras' directory:
 pip install -r requirements.txt
 ```
 * Choose the model you want to run.
+* Log in to the MissingLink.AI website and create a new project.
 * Find the following lines in the model's file:
 ```python
 missinglink_callback = missinglink.KerasCallback(
@@ -21,8 +23,16 @@ missinglink_callback = missinglink.KerasCallback(
     project_token="your-project-token"
 )
 ```
+* Find your owner ID and project token:
+
+![missinglink](https://user-images.githubusercontent.com/30972111/33119952-44d0313c-cf79-11e7-8be3-091eca2e9e57.png)
+![missinglink](https://user-images.githubusercontent.com/30972111/33120206-01428874-cf7a-11e7-8441-3e7b1f860845.png)
 * Insert your owner ID and your project token in the appropriate places.
-* Run the model.
+* Run the model:
+```
+# from the 'model-zoo/keras' directory:
+python <model-name>.py
+```
 
 ## Models
 

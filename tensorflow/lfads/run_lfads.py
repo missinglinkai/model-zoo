@@ -24,7 +24,7 @@ import tensorflow as tf
 import re
 import utils
 
-import missinglink as ML
+import missinglink as ml
 
 # Lots of hyperparameters, but most are pretty insensitive.  The
 # explanation of these hyperparameters is found below, in the flags
@@ -575,7 +575,7 @@ def train(hps, datasets):
     datasets: A dictionary of data dictionaries.  The dataset dict is simply a
       name(string)-> data dictionary mapping (See top of lfads.py).
   """
-  project = ML.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
+  project = ml.TensorFlowProject(owner_id="your-owner-id", project_token="your-project-token")
 
   with project.create_experiment("LFADS") as experiment:
       model = build_model(hps, kind="train", datasets=datasets)
