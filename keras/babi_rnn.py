@@ -226,6 +226,7 @@ model.fit([x, xq], y,
           epochs=EPOCHS,
           validation_split=0.05,
           callbacks=[missinglink_callback])
-loss, acc = model.evaluate([tx, txq], ty,
-                           batch_size=BATCH_SIZE)
-print('Test loss / test accuracy = {:.4f} / {:.4f}'.format(loss, acc))
+with missinglink_callback.test(model):
+    loss, acc = model.evaluate([tx, txq], ty,
+                               batch_size=BATCH_SIZE)
+    print('Test loss / test accuracy = {:.4f} / {:.4f}'.format(loss, acc))
