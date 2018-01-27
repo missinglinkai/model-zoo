@@ -10,11 +10,10 @@ import random
 
 import missinglink
 
-OWNER_ID = '764e5d22-7128-a8cf-4213-c49beec73998'
-PROJECT_TOKEN = 'UJrhwlpluaSbrWew'
-HOST = 'https://missinglink-staging.appspot.com'
+OWNER_ID = 'your_owner_id'
+PROJECT_TOKEN = 'your_project_token'
 
-missinglink_project = missinglink.PyTorchProject(owner_id=OWNER_ID, project_token=PROJECT_TOKEN, host=HOST)
+missinglink_project = missinglink.PyTorchProject(owner_id=OWNER_ID, project_token=PROJECT_TOKEN)
 
 torch.set_num_threads(8)
 torch.manual_seed(1)
