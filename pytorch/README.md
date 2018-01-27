@@ -44,19 +44,36 @@ A list of all the integrated files.
 
 - pytorch-examples
   - [dcgan]
+    - pytorch/pytorch-examples/dcgan/main.py
   - [fast_neural_style]
+    - pytorch/pytorch-examples/fast_neural_style/neural_style/neural_style.py
   - [imagenet]
+    - pytorch/pytorch-examples/imagenet/main.py
   - [mnist]
+    - pytorch/pytorch-examples/mnist/main.py
   - [regression]
+    - pytorch/pytorch-examples/regression/main.py
   - [reinforcement_learning]
+    - pytorch/pytorch-examples/reinforcement_learning/actor_critic.py
+    - pytorch/pytorch-examples/reinforcement_learning/reinforce.py
   - [snli]
+    - pytorch/pytorch-examples/snli/train.py
   - [super_resolution]
+    - pytorch/pytorch-examples/super_resolution/main.py
   - [vae]
+    - pytorch/pytorch-examples/vae/main.py
   - [word_language_model]
+    - pytorch/pytorch-examples/word_language_model/main.py
 - [OpenNMT-py]
+  - pytorch/OpenNMT-py/train.py
 - kuangliu
   - [pytorch-cifar]
+    - pytorch/kuangliu/pytorch-agender/train.py
   - [pytorch-agender]
+    - pytorch/kuangliu/pytorch-cifar/main.py
 - [lstm_sentence_classifier]
+  - pytorch/lstm_sentence_classifier/LSTM_sentence_classifier.py
+  - pytorch/lstm_sentence_classifier/LSTM_sentence_classifier_minibatch.py
 - [char-rnn-pytorch]
+  - pytorch/char-rnn-pytorch/train.py
 
