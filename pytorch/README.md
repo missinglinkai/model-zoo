@@ -43,37 +43,37 @@ python <train-file>.py
 A list of all the integrated files.
 
 - pytorch-examples
-  - [dcgan]
+  - [dcgan](https://github.com/missinglinkai/model-zoo/tree/master/pytorch/pytorch-examples/dcgan)
     - pytorch/pytorch-examples/dcgan/main.py
-  - [fast_neural_style]
+  - [fast_neural_style](https://github.com/missinglinkai/model-zoo/tree/master/pytorch/pytorch-examples/fast_neural_style)
     - pytorch/pytorch-examples/fast_neural_style/neural_style/neural_style.py
-  - [imagenet]
+  - [imagenet](https://github.com/missinglinkai/model-zoo/tree/master/pytorch/pytorch-examples/imagenet)
     - pytorch/pytorch-examples/imagenet/main.py
-  - [mnist]
+  - [mnist](https://github.com/missinglinkai/model-zoo/tree/master/pytorch/pytorch-examples/mnist)
     - pytorch/pytorch-examples/mnist/main.py
-  - [regression]
+  - [regression](https://github.com/missinglinkai/model-zoo/tree/master/pytorch/pytorch-examples/regression)
     - pytorch/pytorch-examples/regression/main.py
-  - [reinforcement_learning]
+  - [reinforcement_learning](https://github.com/missinglinkai/model-zoo/tree/master/pytorch/pytorch-examples/reinforcement_learning)
     - pytorch/pytorch-examples/reinforcement_learning/actor_critic.py
     - pytorch/pytorch-examples/reinforcement_learning/reinforce.py
-  - [snli]
+  - [snli](https://github.com/missinglinkai/model-zoo/tree/master/pytorch/pytorch-examples/snli)
     - pytorch/pytorch-examples/snli/train.py
-  - [super_resolution]
+  - [super_resolution](https://github.com/missinglinkai/model-zoo/tree/master/pytorch/pytorch-examples/super_resolution)
     - pytorch/pytorch-examples/super_resolution/main.py
-  - [vae]
+  - [vae](https://github.com/missinglinkai/model-zoo/tree/master/pytorch/pytorch-examples/vae)
     - pytorch/pytorch-examples/vae/main.py
-  - [word_language_model]
+  - [word_language_model](https://github.com/missinglinkai/model-zoo/tree/master/pytorch/pytorch-examples/word_language_model)
     - pytorch/pytorch-examples/word_language_model/main.py
-- [OpenNMT-py]
+- [OpenNMT-py](https://github.com/missinglinkai/model-zoo/tree/master/pytorch/OpenNMT-py)
   - pytorch/OpenNMT-py/train.py
 - kuangliu
-  - [pytorch-cifar]
+  - [pytorch-cifar](https://github.com/missinglinkai/model-zoo/tree/master/pytorch/kuangliu/pytorch-cifar)
     - pytorch/kuangliu/pytorch-agender/train.py
-  - [pytorch-agender]
+  - [pytorch-agender](https://github.com/missinglinkai/model-zoo/tree/master/pytorch/kuangliu/pytorch-agender)
     - pytorch/kuangliu/pytorch-cifar/main.py
-- [lstm_sentence_classifier]
+- [lstm_sentence_classifier](https://github.com/missinglinkai/model-zoo/tree/master/pytorch/lstm_sentence_classifier)
   - pytorch/lstm_sentence_classifier/LSTM_sentence_classifier.py
   - pytorch/lstm_sentence_classifier/LSTM_sentence_classifier_minibatch.py
-- [char-rnn-pytorch]
+- [char-rnn-pytorch](https://github.com/missinglinkai/model-zoo/tree/master/pytorch/char-rnn-pytorch)
   - pytorch/char-rnn-pytorch/train.py
 
