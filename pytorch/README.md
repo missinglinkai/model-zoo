@@ -15,13 +15,14 @@ Every example comes with an original `README` file, that contains explenation ab
 
 * Clone the repository.
 * Choose the example you want to run.
-* Install the required packages to run the model:
+* [Install PyTorch](http://pytorch.org/)
+* Install the MissingLink.AI SDK:
 ```
-# from the 'model-zoo/pytorch' directory
-pip install -r requirements.txt
+pip install missinglink-sdk
 ```
+**Note** that some example might require additional packages to run properly.
 * Log in to the MissingLink.AI website and create a new project.
-* In the training file of the example, find the following line:
+* In the training file of the example, find the following lines:
 ```python
 OWNER_ID = 'your_owner_id'
 PROJECT_TOKEN = 'your_project_token'
