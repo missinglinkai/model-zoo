@@ -35,8 +35,8 @@ missinglink_callback = missinglink.PyCaffeCallback(
 ```
 * Find your owner ID and project token:
 
-![missinglink](https://user-images.githubusercontent.com/30972111/33119952-44d0313c-cf79-11e7-8be3-091eca2e9e57.png)
-![missinglink](https://user-images.githubusercontent.com/30972111/33120206-01428874-cf7a-11e7-8441-3e7b1f860845.png)
+![missinglink](https://user-images.githubusercontent.com/6713560/35779613-c6fb0044-09d8-11e8-9064-38051e2157f4.png)
+![missinglink](https://user-images.githubusercontent.com/6713560/35779612-c4efc244-09d8-11e8-8e12-0a516157af23.png)
 * Insert your owner ID and your project token in the appropriate places.
 * You will probably need to provide training and testing data, and to insert the path to the data in the net's defenition `.prototxt` file.
 * Run the model:
