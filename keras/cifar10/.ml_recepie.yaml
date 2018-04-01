@@ -1,4 +1,4 @@
-command: 'sh -c ''python cifar1_cnn.py --owner-id $ML_OWNER_ID --project-token elDDbnrkMZlsqfIc --batch-size 32 --epochs 10 --processes 200'''
+command: 'sh -c ''python keras/cifar10/cifar1_cnn.py --owner-id $ML_OWNER_ID --project-token elDDbnrkMZlsqfIc --batch-size 32 --epochs 10 --processes 200'''
 
 data_volume: 5636562473713664
 data_query: '@version:5e1d20fb211f82df12893a45f3c86328eefaaddd  @split:0.8:0.2 @seed:1337'
