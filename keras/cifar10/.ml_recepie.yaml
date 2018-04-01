@@ -1,0 +1,17 @@
+command: 'sh -c ''python cifar1_cnn.py --owner-id $ML_OWNER_ID --project-token elDDbnrkMZlsqfIc --batch-size 32 --epochs 10 --processes 200'''
+
+data_volume: 5636562473713664
+data_query: '@version:5e1d20fb211f82df12893a45f3c86328eefaaddd  @split:0.8:0.2 @seed:1337'
+data_use_iterator: true
+#data_dest_folder: '/data/$@/$dir'
+
+image: missinglinkai/tensorflow:nvidia-ec2
+#image: missinglinkai/tensorflow:18.01-py2
+#git_repo: 'git@github.com:missinglinkai/MissingLink-Demo.git'
+#git_tag: 'master'
+
+gpu: true
+org: 'missinglinkdemo'
+output_paths: ['/output']
+project: '5742668902563840'
+

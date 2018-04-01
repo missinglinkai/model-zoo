@@ -1,0 +1,170 @@
+'''Train a simple deep CNN on the CIFAR10 small images dataset.
+
+GPU run command with Theano backend (with TensorFlow, the GPU is automatically used):
+    THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatx=float32 python cifar10_cnn.py
+
+It gets down to 0.65 test logloss in 25 epochs, and down to 0.55 after 50 epochs.
+(it's still underfitting at that point, though).
+'''
+
+from __future__ import print_function
+
+import argparse
+import os
+import pickle
+
+import keras
+import missinglink
+import numpy as np
+from keras.datasets import cifar10
+from keras.preprocessing.image import ImageDataGenerator
+
+from data_iterator import process_file_and_metadata
+from metrics_callback import Metrics, IntervalEvaluation
+from model import get_model
+from test_callback import TestCallback
+
+parser = argparse.ArgumentParser(description='Cifar10 Data Iterator Sample')
+
+parser.add_argument('--datavolume', required=True)
+parser.add_argument('--query', required=True)
+parser.add_argument('--owner-id', required=True)
+parser.add_argument('--project-token', required=True)
+parser.add_argument('--processes', required=False, default=200)
+parser.add_argument('--epochs', type=int, default=10)
+parser.add_argument('--batch-size', type=int, default=32)
+parser.add_argument('--num-predictions', type=int, default=20)
+
+
+args = parser.parse_args()
+
+DATAVOLUME = args.datavolume
+QUERY = args.query
+OWNER_ID = args.owner_id
+PROJECT_TOKEN = args.project_token
+
+missinglink_callback = missinglink.KerasCallback(owner_id=OWNER_ID, project_token=PROJECT_TOKEN)
+
+missinglink_callback.set_properties("CIFAR10-CNN")
+
+batch_size = args.batch_size
+num_classes = 10
+epochs = args.epochs
+data_augmentation = True
+num_predictions = args.num_predictions
+
+save_dir = os.path.join('/output' if missinglink_callback.rm_data_iterator_settings else os.getcwd(), 'saved_models')
+model_name = 'keras_cifar10_trained_model.h5'
+
+# The data, shuffled and split between train and test sets:
+(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+#
+# x_train = x_train[:1500]
+# y_train = y_train[:1500]
+# x_test = x_test[:1500]
+# y_test = y_test[:1500]
+#
+# print('x_train shape:', x_train.shape)
+# print('x_train shape:', x_train.shape[1:])
+#
+# print(x_train.shape[0], 'train samples')
+# print(x_test.shape[0], 'test samples')
+#
+# # Convert class vectors to binary class matrices.
+# y_train = keras.utils.to_categorical(y_train, num_classes)
+# y_test = keras.utils.to_categorical(y_test, num_classes)
+
+model = get_model()
+
+if not data_augmentation:
+    print('Not using data augmentation.')
+    # model.fit(x_train, y_train,
+    #           batch_size=batch_size,
+    #           epochs=epochs,
+    #           validation_data=(x_test, y_test),
+    #           shuffle=True,
+    #           callbacks=[missinglink_callback])
+
+else:
+    print('Using real-time data augmentation.')
+    # This will do preprocessing and realtime data augmentation:
+    datagen = ImageDataGenerator(
+        featurewise_center=False,  # set input mean to 0 over the dataset
+        samplewise_center=False,  # set each sample mean to 0
+        featurewise_std_normalization=False,  # divide inputs by std of the dataset
+        samplewise_std_normalization=False,  # divide each input by its std
+        zca_whitening=False,  # apply ZCA whitening
+        rotation_range=0,  # randomly rotate images in the range (degrees, 0 to 180)
+        width_shift_range=0.1,  # randomly shift images horizontally (fraction of total width)
+        height_shift_range=0.1,  # randomly shift images vertically (fraction of total height)
+        horizontal_flip=True,  # randomly flip images
+        vertical_flip=False)  # randomly flip images
+
+    # test_callback = TestCallback((x_test, y_test), missinglink_callback, datagen, batch_size)
+    metrics_callback = Metrics()
+    interval_metrics = IntervalEvaluation(missinglink_callback)
+    # Compute quantities required for feature-wise normalization
+    # (std, mean, and principal components if ZCA whitening is applied).
+
+    iterator_settings = missinglink_callback.rm_data_iterator_settings
+    if iterator_settings is not None:
+        volume_id = iterator_settings[0]
+        query = iterator_settings[1]
+    else:
+        volume_id = DATAVOLUME
+        query = QUERY
+
+    data_generator = missinglink_callback.bind_data_generator(
+        volume_id, query, process_file_and_metadata, batch_size=batch_size
+    )
+
+    # given the query has a @split directive it will return a number of generator as the number of splits.
+    train_generator, test_generator = data_generator.flow()
+    datagen.fit(train_generator)
+
+    missinglink_callback.set_hyperparams(batch_size=batch_size,
+                                         steps_per_epoch=len(train_generator),
+                                         validation_steps=len(test_generator),
+                                         processes=args.processes)
+    # Fit the model on the batches generated by datagen.flow().
+    model.fit_generator(train_generator,  # datagen.flow(x_train, y_train,
+                        #             batch_size=batch_size),
+                        steps_per_epoch=len(train_generator),  # x_train.shape[0] // batch_size,
+                        epochs=epochs,
+                        validation_data=test_generator,  # (x_test, y_test),
+                        validation_steps=len(test_generator),
+                        workers=4,
+                        callbacks=[missinglink_callback, interval_metrics])
+
+# Save model and weights
+if not os.path.isdir(save_dir):
+    os.makedirs(save_dir)
+model_path = os.path.join(save_dir, model_name)
+model.save(model_path)
+print('Saved trained model at %s ' % model_path)
+
+# Load label names to use in prediction results
+label_list_path = 'datasets/cifar-10-batches-py/batches.meta'
+
+keras_dir = os.path.expanduser(os.path.join('~', '.keras'))
+datadir_base = os.path.expanduser(keras_dir)
+if not os.access(datadir_base, os.W_OK):
+    datadir_base = os.path.join('/tmp', '.keras')
+label_list_path = os.path.join(datadir_base, label_list_path)
+
+with open(label_list_path, mode='rb') as f:
+    labels = pickle.load(f)
+
+predict_gen = model.predict_generator(datagen.flow(x_test, y_test,
+                                                   batch_size=batch_size,
+                                                   shuffle=False),
+                                      steps=x_test.shape[0] // batch_size,
+                                      workers=4)
+
+for predict_index, predicted_y in enumerate(predict_gen):
+    actual_label = labels['label_names'][np.argmax(y_test[predict_index])]
+    predicted_label = labels['label_names'][np.argmax(predicted_y)]
+    print('Actual Label = %s vs. Predicted Label = %s' % (actual_label,
+                                                          predicted_label))
+    if predict_index == num_predictions:
+        break
