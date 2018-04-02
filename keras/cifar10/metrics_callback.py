@@ -1,7 +1,8 @@
+# -- coding: utf8 --
+
 import numpy as np
 from keras.callbacks import Callback
 from sklearn.metrics import f1_score, precision_score, recall_score, roc_auc_score
-import logging
 
 
 class Metrics(Callback):
@@ -19,6 +20,8 @@ class Metrics(Callback):
         self.val_f1s.append(_val_f1)
         self.val_recalls.append(_val_recall)
         self.val_precisions.append(_val_precision)
+        print(' — val_f1: {}'.format(_val_f1))
+        print(' — val_precision: {}'.format(_val_precision))
         print(' — val_f1: {} — val_precision: {} — val_recall {}'.format(_val_f1, _val_precision, _val_recall))
         return
 
@@ -42,8 +45,8 @@ class IntervalEvaluation(Callback):
 
     def on_train_end(self, epoch, logs=None):
         x = self.ml_callback.calculate_weights_hash(self.model)
-        self.ml_callback.send_chart(name='AUC',
-                                    x_values=self.x_axis, y_values=self.val_auc,
-                                    x_legend='epoch', y_legends='AUC',
-                                    scope='test', type='line', model_weights_hash=x)
+        # self.ml_callback.send_chart(name='AUC',
+        #                             x_values=self.x_axis, y_values=self.val_auc,
+        #                             x_legend='epoch', y_legends='AUC',
+        #                             scope='test', type='line', model_weights_hash=x)
         pass

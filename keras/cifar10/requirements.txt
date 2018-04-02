@@ -4,3 +4,4 @@ missinglink-sdk
 h5py
 sklearn
 matplotlib
+git+https://www.github.com/keras-team/keras-contrib.git

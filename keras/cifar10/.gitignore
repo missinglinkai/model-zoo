@@ -5,3 +5,5 @@ missinglink_query.sqlite
 cifar-10-batches-py
 output
 saved_models
+__pycache__
+tensorboard

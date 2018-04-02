@@ -1,5 +1,20 @@
-import numpy as np
+# -- coding: utf8 --
+import random
 
+import numpy as np
+from keras.preprocessing.image import ImageDataGenerator
+
+datagen = ImageDataGenerator(
+    featurewise_center=False,  # set input mean to 0 over the dataset
+    samplewise_center=False,  # set each sample mean to 0
+    featurewise_std_normalization=False,  # divide inputs by std of the dataset
+    samplewise_std_normalization=False,  # divide each input by its std
+    zca_whitening=False,  # apply ZCA whitening
+    rotation_range=0,  # randomly rotate images in the range (degrees, 0 to 180)
+    width_shift_range=0.1,  # randomly shift images horizontally (fraction of total width)
+    height_shift_range=0.1,  # randomly shift images vertically (fraction of total height)
+    horizontal_flip=True,  # randomly flip images
+    vertical_flip=False)  # randomly flip images
 
 def read_image(filename):
     import matplotlib.image as mpimg
@@ -27,11 +42,13 @@ def process_file_and_metadata(filename, metadata):
     :param filename: the filename for the datapoint
     :param metadata: the metadata for the filenames
     """
-    # print('filesnames %s' % filename)
-    # print('metadata %s' % metadata)
+    # if random.randint(0, 100) % 10:
+    #     print('filesnames %s' % filename)
+    #     print('metadata %s' % metadata)
 
     # we load the image and reshape it to a vector
     x = read_image(filename)
+    x = datagen.random_transform(x)
     # convert the class number to one hot
     y = one_hot(int(metadata['label_index']))
     return x, y
