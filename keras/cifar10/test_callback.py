@@ -28,8 +28,8 @@ class TestCallback(Callback):
 
     def on_train_end(self, epoch, logs=None):
         x = self.callback.calculate_weights_hash(self.model)
-        # self.callback.send_chart(name='Precision Recall',
-        #         #                          x_values=self.loss_metrics, y_values=self.acc_metrics,
-        #         #                          x_legend='Precision', y_legends='Recall',
-        #         #                          scope='test', type='line', model_weights_hash=x)
+        self.callback.send_chart(name='Precision Recall',
+                                         x_values=self.loss_metrics, y_values=self.acc_metrics,
+                                         x_legend='Recall', y_legends='Precision',
+                                         scope='test', type='line', model_weights_hash=x)
         pass

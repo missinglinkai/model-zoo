@@ -14,7 +14,7 @@ datagen = ImageDataGenerator(
     width_shift_range=0.1,  # randomly shift images horizontally (fraction of total width)
     height_shift_range=0.1,  # randomly shift images vertically (fraction of total height)
     horizontal_flip=True,  # randomly flip images
-    vertical_flip=False)  # randomly flip images
+    vertical_flip=True)  # randomly flip images
 
 def read_image(filename):
     import matplotlib.image as mpimg

@@ -13,15 +13,13 @@ from __future__ import print_function
 import argparse
 import os
 
-import keras
 import missinglink
-from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, TensorBoard
-from keras.optimizers import Adam
-from keras_contrib.applications import DenseNet
+from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, TensorBoard, EarlyStopping
+from keras_sequential_ascii import keras2ascii
 
 from data_iterator import process_file_and_metadata
 from metrics_callback import Metrics, IntervalEvaluation
-from model import get_model, get_densenet_model
+from model import get_model
 from test_callback import TestCallback
 from utils import safe_make_dirs
 
@@ -68,10 +66,11 @@ num_predictions = args.num_predictions
 save_dir = os.path.join('/output' if missinglink_callback.rm_data_iterator_settings else os.getcwd(), 'saved_models')
 model_name = 'keras_cifar10_trained_model.h5'
 
-if args.model == 'densenet':
-    model = get_densenet_model()
-else:
-    model = get_model()
+model = get_model()
+
+model.summary()
+
+keras2ascii(model)
 
 
 print('Using real-time data augmentation.')
@@ -125,11 +124,7 @@ model.fit_generator(train_generator,
                                    mode='auto',
                                    period=5
                                ),
-                               # EarlyStopping(
-                               #     monitor='val_loss',
-                               #     min_delta=0.001,
-                               #     patience=2
-                               # ),
+                               EarlyStopping(monitor='val_acc', min_delta=1e-4, patience=20),
                                ReduceLROnPlateau(
                                    monitor='val_loss',
                                    factor=0.1,
@@ -150,13 +145,13 @@ model.save(model_path)
 print('Saved trained model at %s ' % model_path)
 
 # Load label names to use in prediction results
-label_list_path = 'datasets/cifar-10-batches-py/batches.meta'
-
-keras_dir = os.path.expanduser(os.path.join('~', '.keras'))
-datadir_base = os.path.expanduser(keras_dir)
-if not os.access(datadir_base, os.W_OK):
-    datadir_base = os.path.join('/tmp', '.keras')
-label_list_path = os.path.join(datadir_base, label_list_path)
+# label_list_path = 'datasets/cifar-10-batches-py/batches.meta'
+#
+# keras_dir = os.path.expanduser(os.path.join('~', '.keras'))
+# datadir_base = os.path.expanduser(keras_dir)
+# if not os.access(datadir_base, os.W_OK):
+#     datadir_base = os.path.join('/tmp', '.keras')
+# label_list_path = os.path.join(datadir_base, label_list_path)
 
 # with open(label_list_path, mode='rb') as f:
 #     labels = pickle.load(f)
