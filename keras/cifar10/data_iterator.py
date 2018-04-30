@@ -16,12 +16,13 @@ datagen = ImageDataGenerator(
     horizontal_flip=True,  # randomly flip images
     vertical_flip=True)  # randomly flip images
 
+
 def read_image(filename):
     import matplotlib.image as mpimg
 
     img = mpimg.imread(filename)
     # reshape it from (32,32,3) to a vector of 3072 numbers
-    new_img = img # .reshape((-1), order='F')
+    new_img = img  # .reshape((-1), order='F')
 
     return new_img
 
@@ -33,20 +34,22 @@ def one_hot(i):
     return a
 
 
-def process_file_and_metadata(filename, metadata):
+def process_file_and_metadata(filenames, metadatas):
     """
     This function will be called for each data point.
     In our case - this is coming from CIFAR10 and will include 1 file in the file_names and the respected
     metadata which includes a property called 'label_index;
     :rtype: a tuple with inputs of the model. a numpy array with the image and a one hot vector for the class
-    :param filename: the filename for the datapoint
-    :param metadata: the metadata for the filenames
+    :param filenames: a tuple with the filenames for the datapoint
+    :param metadatas: a tuple with the metadatas for the filenames
     """
     # if random.randint(0, 100) % 10:
     #     print('filesnames %s' % filename)
     #     print('metadata %s' % metadata)
 
     # we load the image and reshape it to a vector
+    filename, = filenames
+    metadata, = metadatas
     x = read_image(filename)
     x = datagen.random_transform(x)
     # convert the class number to one hot

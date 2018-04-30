@@ -12,16 +12,20 @@ from __future__ import print_function
 
 import argparse
 import os
-
+import logging
 import missinglink
+import numpy
 from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, TensorBoard, EarlyStopping
 from keras_sequential_ascii import keras2ascii
 
 from data_iterator import process_file_and_metadata
-from metrics_callback import Metrics, IntervalEvaluation
+from metrics_callback import IntervalEvaluation
 from model import get_model
 from test_callback import TestCallback
 from utils import safe_make_dirs
+
+logging.getLogger().setLevel(logging.INFO)
+logging.getLogger().addHandler(logging.StreamHandler())
 
 parser = argparse.ArgumentParser(description='Cifar10 Data Iterator Sample')
 
@@ -98,9 +102,8 @@ data_generator = missinglink_callback.bind_data_generator(
 # given the query has a @split directive it will return a number of generator as the number of splits.
 train_generator, test_generator = data_generator.flow()
 
-test_callback = TestCallback(test_generator, missinglink_callback, batch_size)
-metrics_callback = Metrics()
-interval_metrics = IntervalEvaluation(missinglink_callback)
+test_callback = TestCallback(test_generator, missinglink_callback)
+interval_metrics = IntervalEvaluation(missinglink_callback, test_generator, class_mapping, num_predictions)
 
 missinglink_callback.set_hyperparams(batch_size=batch_size,
                                      steps_per_epoch=len(train_generator),
@@ -144,28 +147,38 @@ model_path = os.path.join(save_dir, model_name)
 model.save(model_path)
 print('Saved trained model at %s ' % model_path)
 
-# Load label names to use in prediction results
-# label_list_path = 'datasets/cifar-10-batches-py/batches.meta'
-#
-# keras_dir = os.path.expanduser(os.path.join('~', '.keras'))
-# datadir_base = os.path.expanduser(keras_dir)
-# if not os.access(datadir_base, os.W_OK):
-#     datadir_base = os.path.join('/tmp', '.keras')
-# label_list_path = os.path.join(datadir_base, label_list_path)
+#Load label names to use in prediction results
+label_list_path = 'datasets/cifar-10-batches-py/batches.meta'
+
+keras_dir = os.path.expanduser(os.path.join('~', '.keras'))
+datadir_base = os.path.expanduser(keras_dir)
+if not os.access(datadir_base, os.W_OK):
+    datadir_base = os.path.join('/tmp', '.keras')
+label_list_path = os.path.join(datadir_base, label_list_path)
 
 # with open(label_list_path, mode='rb') as f:
 #     labels = pickle.load(f)
-#
-# predict_gen = model.predict_generator(datagen.flow(x_test, y_test,
-#                                                    batch_size=batch_size,
-#                                                    shuffle=False),
-#                                       steps=x_test.shape[0] // batch_size,
-#                                       workers=4)
-#
-# for predict_index, predicted_y in enumerate(predict_gen):
-#     actual_label = labels['label_names'][np.argmax(y_test[predict_index])]
-#     predicted_label = labels['label_names'][np.argmax(predicted_y)]
-#     print('Actual Label = %s vs. Predicted Label = %s' % (actual_label,
-#                                                           predicted_label))
-#     if predict_index == num_predictions:
-#         break
+
+test_items_x = None
+test_items_y = None
+
+for _ in range(len(test_generator)):
+    data = next(test_generator)
+    if test_items_x is None:
+        test_items_x = data[0]
+        test_items_y = data[1]
+    else:
+        test_items_x = numpy.concatenate((test_items_x, data[0]))
+        test_items_y = numpy.concatenate((test_items_y, data[1]))
+
+predict_gen = model.predict_generator(test_generator,
+                                      steps=len(test_generator) // batch_size,
+                                      workers=4)
+
+for predict_index, predicted_y in enumerate(predict_gen):
+    actual_label = class_mapping[ numpy.argmax( test_items_y[predict_index] ) ]
+    predicted_label = class_mapping[numpy.argmax(predicted_y)]
+    print('Actual Label = %s vs. Predicted Label = %s' % (actual_label,
+                                                          predicted_label))
+    if predict_index == num_predictions:
+        break
